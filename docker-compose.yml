@@ -1,0 +1,24 @@
+name: study-genie
+version: "3.9"
+
+services:
+  postgres-lesson-service:
+    image: postgres:18.1
+    container_name: pg_lesson_service
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_LESSON_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_LESSON_USER}
+      POSTGRES_DB: ${POSTGRES_LESSON_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgrebd_lesson_service:/var/lib/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U api-study-leasson -d lesson" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgrebd_lesson_service:
+    external: false
