@@ -20,27 +20,46 @@ import com.studygenie.lesson.course.CourseRepository;
 import com.studygenie.lesson.course.CourseRequestDTO;
 import com.studygenie.lesson.course.CourseResponseDTO;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping("/courses")
+@Tag(name = "Cursos", description = "Operações de CRUD para gerenciamento de cursos.")
 public class CourseController {
 
     @Autowired
     private CourseRepository courseRepository;
 
+    @Operation(summary = "Listar todos os cursos", description = "Retorna a lista completa de cursos cadastrados.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
+    })
     @GetMapping
     public List<CourseResponseDTO> getAll() {
         return courseRepository.findAll().stream().map(CourseResponseDTO::from).toList();
     }
 
+    @Operation(summary = "Buscar curso por ID", description = "Retorna um curso específico pelo seu UUID.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Curso encontrado"),
+        @ApiResponse(responseCode = "404", description = "Curso não encontrado")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<CourseResponseDTO> get(@PathVariable @NotNull UUID id) {
         return courseRepository.findById(id).map(course -> ResponseEntity.ok(CourseResponseDTO.from(course)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Criar curso", description = "Cria um novo curso com os dados fornecidos.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Curso criado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos no corpo da requisição")
+    })
     @PostMapping
     public ResponseEntity<CourseResponseDTO> create(@RequestBody @Valid CourseRequestDTO dto) {
         Course course = dto.toCourse();
@@ -49,6 +68,12 @@ public class CourseController {
         return ResponseEntity.ok(CourseResponseDTO.from(courseRepository.save(course)));
     }
 
+    @Operation(summary = "Atualizar curso", description = "Atualiza os dados de um curso existente pelo seu UUID.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Curso atualizado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos no corpo da requisição"),
+        @ApiResponse(responseCode = "404", description = "Curso não encontrado")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<CourseResponseDTO> update(@PathVariable @NotNull UUID id,
             @RequestBody @Valid CourseRequestDTO dto) {
@@ -60,6 +85,11 @@ public class CourseController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Excluir curso", description = "Remove um curso do sistema pelo seu UUID.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Curso excluído com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Curso não encontrado")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable @NotNull UUID id) {
         if (courseRepository.existsById(id)) {

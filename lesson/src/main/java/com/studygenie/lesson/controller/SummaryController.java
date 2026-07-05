@@ -26,11 +26,15 @@ import com.studygenie.lesson.summary.SummaryTagRepository;
 import com.studygenie.lesson.tag.Tag;
 import com.studygenie.lesson.tag.TagRepository;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping("/summaries")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Resumos", description = "Operações de CRUD para gerenciamento de resumos vinculados a aulas e tags.")
 public class SummaryController {
 
     @Autowired
@@ -45,11 +49,20 @@ public class SummaryController {
     @Autowired
     private TagRepository tagRepository;
 
+    @Operation(summary = "Listar todos os resumos", description = "Retorna a lista completa de resumos cadastrados.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso")
+    })
     @GetMapping
     public List<SummaryResponseDTO> getAll() {
         return summaryRepository.findAll().stream().map(SummaryResponseDTO::from).toList();
     }
 
+    @Operation(summary = "Buscar resumo por ID", description = "Retorna um resumo específico pelo seu UUID.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Resumo encontrado"),
+        @ApiResponse(responseCode = "404", description = "Resumo não encontrado")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<SummaryResponseDTO> get(@PathVariable @NotNull UUID id) {
         return summaryRepository.findById(id)
@@ -57,6 +70,12 @@ public class SummaryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Criar resumo", description = "Cria um novo resumo vinculado a uma aula. Opcionalmente associa tags existentes.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Resumo criado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos ou tag referenciada não encontrada"),
+        @ApiResponse(responseCode = "404", description = "Aula referenciada não encontrada")
+    })
     @PostMapping
     public ResponseEntity<SummaryResponseDTO> create(@RequestBody @Valid SummaryRequestDTO dto) {
         return lessonRepository.findById(dto.lessonId())
@@ -89,6 +108,12 @@ public class SummaryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Atualizar resumo", description = "Atualiza os dados de um resumo existente. As tags são substituídas pelas informadas no payload.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Resumo atualizado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos ou tag referenciada não encontrada"),
+        @ApiResponse(responseCode = "404", description = "Resumo ou aula não encontrado")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<SummaryResponseDTO> update(@PathVariable @NotNull UUID id,
             @RequestBody @Valid SummaryRequestDTO dto) {
@@ -127,6 +152,11 @@ public class SummaryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Excluir resumo", description = "Remove um resumo do sistema pelo seu UUID.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Resumo excluído com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Resumo não encontrado")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable @NotNull UUID id) {
         if (summaryRepository.existsById(id)) {
