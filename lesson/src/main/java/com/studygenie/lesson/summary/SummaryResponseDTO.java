@@ -4,11 +4,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.studygenie.lesson.lesson.LessonResponseDTO;
 import com.studygenie.lesson.tag.TagResponseDTO;
 
 public record SummaryResponseDTO(
         UUID id,
-        UUID lessonId,
+        LessonResponseDTO lesson,
         String content,
         SummarySource source,
         List<TagResponseDTO> tags,
@@ -22,7 +23,7 @@ public record SummaryResponseDTO(
 
         return new SummaryResponseDTO(
                 summary.getId(),
-                summary.getLesson().getId(),
+                summary.getLesson() != null ? LessonResponseDTO.from(summary.getLesson()) : null,
                 summary.getContent(),
                 summary.getSource(),
                 tags,
