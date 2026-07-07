@@ -9,6 +9,7 @@ import com.studygenie.lesson.tag.TagResponseDTO;
 
 public record SummaryResponseDTO(
         UUID id,
+        String title,
         LessonResponseDTO lesson,
         String content,
         SummarySource source,
@@ -23,6 +24,7 @@ public record SummaryResponseDTO(
 
         return new SummaryResponseDTO(
                 summary.getId(),
+                summary.getTitle(),
                 summary.getLesson() != null ? LessonResponseDTO.from(summary.getLesson()) : null,
                 summary.getContent(),
                 summary.getSource(),

@@ -11,6 +11,8 @@ import jakarta.validation.constraints.NotNull;
 
 public record SummaryRequestDTO(
 
+        @NotBlank(message = "Summary title is required") String title,
+
         @NotNull(message = "Lesson ID is required") UUID lessonId,
 
         @NotBlank(message = "Summary content is required") String content,
@@ -21,6 +23,7 @@ public record SummaryRequestDTO(
 
     public Summary toSummary(Lesson lesson) {
         Summary summary = new Summary();
+        summary.setTitle(this.title);
         summary.setLesson(lesson);
         summary.setContent(this.content);
         summary.setSource(this.source);
@@ -28,6 +31,7 @@ public record SummaryRequestDTO(
     }
 
     public void mapToSummary(Summary summary, Lesson lesson) {
+        summary.setTitle(this.title);
         summary.setLesson(lesson);
         summary.setContent(this.content);
         summary.setSource(this.source);

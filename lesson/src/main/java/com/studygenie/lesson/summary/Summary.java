@@ -34,6 +34,9 @@ public class Summary {
     @JoinColumn(name = "lesson_id", nullable = false, unique = true)
     private Lesson lesson;
 
+    @Column(nullable = false, length = 200)
+    private String title;
+
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
@@ -41,7 +44,7 @@ public class Summary {
     @Column(nullable = false)
     private SummarySource source;
 
-    @OneToMany(mappedBy = "summary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "summary")
     private List<SummaryTag> summaryTags = new ArrayList<>();
 
     @Column(name = "created_at")

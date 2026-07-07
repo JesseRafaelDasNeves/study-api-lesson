@@ -32,6 +32,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
+import com.studygenie.lesson.summary.SummarySearchCriteria;
+import com.studygenie.lesson.summary.SummarySearchResultItem;
+import com.studygenie.lesson.summary.SummarySearchService;
+import com.studygenie.lesson.summary.SummarySortBy;
+import com.studygenie.lesson.summary.SummarySortDirection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.RequestParam;
+
 @RestController
 @RequestMapping("/summaries")
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Resumos", description = "Operações de CRUD para gerenciamento de resumos vinculados a aulas e tags.")
@@ -48,6 +58,48 @@ public class SummaryController {
 
     @Autowired
     private TagRepository tagRepository;
+
+    @Autowired
+    private SummarySearchService summarySearchService;
+
+    @Operation(summary = "Buscar resumos de forma paginada", description = "Busca resumos por texto completo, filtros opcionais por curso, aula e tags, com ordenação flexível.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Busca realizada com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Parâmetros inválidos de ordenação ou paginação")
+    })
+    @GetMapping("/search")
+    public ResponseEntity<Page<SummarySearchResultItem>> search(
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) UUID courseId,
+            @RequestParam(required = false) UUID lessonId,
+            @RequestParam(required = false) List<UUID> tagIds,
+            @RequestParam(defaultValue = "DATE") SummarySortBy sortBy,
+            @RequestParam(defaultValue = "DESC") SummarySortDirection sortDirection,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        if (size > 100) {
+            size = 100; // Limite razoável para evitar abuso
+        }
+        if (page < 0) {
+            page = 0;
+        }
+        if (size <= 0) {
+            size = 20;
+        }
+
+        SummarySearchCriteria criteria = new SummarySearchCriteria(
+                query, courseId, lessonId, tagIds, sortBy, sortDirection
+        );
+
+        Pageable pageable = PageRequest.of(page, size);
+        try {
+            Page<SummarySearchResultItem> result = summarySearchService.search(criteria, pageable);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
     @Operation(summary = "Listar todos os resumos", description = "Retorna a lista completa de resumos cadastrados.")
     @ApiResponses({
