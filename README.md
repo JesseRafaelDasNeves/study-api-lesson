@@ -64,6 +64,31 @@ ${env:POSTGRES_LESSON_DB}='lesson'; ${env:POSTGRES_LESSON_USER}='api-study-leass
 
 ---
 
+## 🧪 Testes
+
+### Testes Existentes
+A aplicação possui testes unitários e de integração focados na extração de texto, serviços de IA e busca de resumos:
+
+- **Extração de Texto**:
+  - `PdfTextExtractorTest.java`: Testes do extrator de arquivos PDF (.pdf).
+  - `DocxTextExtractorTest.java`: Testes do extrator de arquivos Word (.docx).
+  - `PlainTextExtractorTest.java`: Testes do extrator de arquivos de texto simples (.txt).
+  - `TextExtractionServiceTest.java`: Teste integrado do serviço gerenciador de extração de texto.
+  - `FileExtractionControllerTest.java`: Testes de endpoint da API para extração de arquivos.
+- **Serviços e Integração**:
+  - `ContentGeneratorAuthServiceTest.java`: Testes de integração e autenticação (OAuth2) com o serviço Content Generator.
+  - `SummaryAIServiceTest.java`: Testes do serviço de IA para geração de resumos.
+  - `SummarySearchServiceTest.java`: Testes do serviço de busca, paginação e filtros dinâmicos de resumos.
+
+### Como Executar os Testes
+Para executar os testes do backend a partir do terminal, utilize o comando abaixo informando as credenciais do banco de dados:
+
+```bash
+./mvnw test "-Dspring.datasource.username=api-study-leasson" "-Dspring.datasource.password=123456" "-Dspring.datasource.url=jdbc:postgresql://localhost:5432/lesson"
+```
+
+---
+
 ## 🔗 Links Úteis
 
 - **Documentação OpenAPI (Swagger)**: http://localhost:8080/swagger-ui/index.html
