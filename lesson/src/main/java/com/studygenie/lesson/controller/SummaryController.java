@@ -152,17 +152,17 @@ public class SummaryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Excluir resumo", description = "Remove um resumo do sistema pelo seu UUID.")
-    @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Resumo excluído com sucesso"),
-        @ApiResponse(responseCode = "404", description = "Resumo não encontrado")
-    })
     @DeleteMapping("/{id}")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<Void> delete(@PathVariable @NotNull UUID id) {
-        if (summaryRepository.existsById(id)) {
-            summaryRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        return summaryRepository.findById(id)
+                .map(summary -> {
+                    if (summary.getLesson() != null) {
+                        summary.getLesson().setSummary(null);
+                    }
+                    summaryRepository.delete(summary);
+                    return ResponseEntity.noContent().<Void>build();
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }
